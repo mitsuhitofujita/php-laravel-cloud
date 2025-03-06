@@ -17,6 +17,7 @@
 		"DB_DATABASE": "laravel_app_database_local",
 		"DB_DATABASE_TESTING": "laravel_app_database_testing"
 	},
+	"forwardPorts": [8000],
 	"workspaceFolder": "/workspace",
 	"customizations": {
 		
