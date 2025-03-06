@@ -11,6 +11,8 @@
 		"APP_KEY": "base64:GsSOvZ2uoodgjc1l4XfOWdWs+pMRw34I8mfkCZFEwps=",
 		"APP_DEBUG": "true",
 		"DB_HOST": "postgres",
+		"DB_USERNAME": "laravel",
+		"DB_PASSWORD": "laravel",
 		"DB_PORT": "5432",
 		"DB_DATABASE": "laravel_app_database_local",
 		"DB_DATABASE_TESTING": "laravel_app_database_testing"
