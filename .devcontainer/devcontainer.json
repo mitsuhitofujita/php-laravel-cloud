@@ -1,0 +1,39 @@
+{
+	"name": "php-laravel-cloud",
+	"dockerComposeFile": [
+		"compose.yaml"
+	],
+	"service": "php-laravel",
+	"remoteUser": "vscode",
+	"remoteEnv": {
+		"APP_NAME": "laravel_app",
+		"APP_ENV": "local",
+		"APP_KEY": "base64:GsSOvZ2uoodgjc1l4XfOWdWs+pMRw34I8mfkCZFEwps=",
+		"APP_DEBUG": "true",
+		"DB_HOST": "postgres",
+		"DB_PORT": "5432",
+		"DB_DATABASE": "laravel_app_database_local",
+		"DB_DATABASE_TESTING": "laravel_app_database_testing"
+	},
+	"workspaceFolder": "/workspace",
+	"customizations": {
+		
+		"vscode": {
+			"settings": {
+                "terminal.integrated.profiles.linux": {
+                    "bash": {
+                        "path": "/bin/bash"
+                    }
+                },
+                "terminal.integrated.defaultProfile.linux": "bash"
+            },
+			"extensions": [
+				"bmewburn.vscode-intelephense-client",
+				"cweijan.vscode-database-client2",
+				"editorconfig.editorconfig",
+				"redhat.vscode-yaml",
+				"shufo.vscode-blade-formatter"
+			]
+		}
+	}
+}
