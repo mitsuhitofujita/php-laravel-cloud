@@ -47,7 +47,7 @@ class Subject extends Model
     {
         return $this->latestDetail?->description;
     }
-    
+
     public function organizations(): BelongsToMany
     {
         return $this->belongsToMany(Organization::class)->withTimestamps();

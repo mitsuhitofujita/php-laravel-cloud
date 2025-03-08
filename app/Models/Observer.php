@@ -60,7 +60,7 @@ class Observer extends Model
     {
         return $this->belongsToMany(Organization::class)->withTimestamps();
     }
-    
+
     /**
      * Get the default private organization associated with the observer.
      * If no organization exists, create one.
