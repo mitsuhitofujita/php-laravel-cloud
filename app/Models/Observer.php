@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Events\ObserverCreated;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -26,7 +27,9 @@ class Observer extends Model
 
     protected $dateFormat = 'Y-m-d H:i:s.u';
 
-    protected $dispatchesEvents = [];
+    protected $dispatchesEvents = [
+        'created' => ObserverCreated::class,
+    ];
 
     public function details(): HasMany
     {
@@ -56,5 +59,14 @@ class Observer extends Model
     public function organizations(): BelongsToMany
     {
         return $this->belongsToMany(Organization::class)->withTimestamps();
+    }
+    
+    /**
+     * Get the default private organization associated with the observer.
+     * If no organization exists, create one.
+     */
+    public function getDefaultOrganization(): ?Organization
+    {
+        return $this->organizations()->first();
     }
 }
