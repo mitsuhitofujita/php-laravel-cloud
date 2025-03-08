@@ -13,14 +13,12 @@ return new class extends Migration
     {
         Schema::create('observer_details', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('observer_id');
+            $table->foreignId('observer_id')->constrained()->cascadeOnDelete();
 
             $table->string('name');
             $table->string('description')->nullable();
 
             $table->timestamp('created_at', 6)->useCurrent();
-
-            $table->foreign('observer_id')->references('id')->on('observers');
         });
     }
 

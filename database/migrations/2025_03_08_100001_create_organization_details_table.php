@@ -13,14 +13,12 @@ return new class extends Migration
     {
         Schema::create('organization_details', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('organization_id');
+            $table->foreignId('organization_id')->constrained()->cascadeOnDelete();
 
             $table->string('name');
             $table->string('description')->nullable();
 
             $table->timestamp('created_at', 6)->useCurrent();
-
-            $table->foreign('organization_id')->references('id')->on('organizations');
         });
     }
 
