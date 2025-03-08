@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('observer_organization', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('observer_id')->constrained()->onDelete('cascade');
-            $table->foreignId('organization_id')->constrained()->onDelete('cascade');
+            $table->foreignId('observer_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('organization_id')->constrained()->cascadeOnDelete();
             $table->timestamp('created_at', 6)->useCurrent();
             
             // 同じ組み合わせのレコードが重複して登録されないようにユニーク制約を設定
