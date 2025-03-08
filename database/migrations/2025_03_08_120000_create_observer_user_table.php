@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('observer_id')->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->timestamp('created_at', 6)->useCurrent();
-            
+            $table->timestamps(6);
+
             // 同じ組み合わせのレコードが重複して登録されないようにユニーク制約を設定
             $table->unique(['observer_id', 'user_id']);
         });
