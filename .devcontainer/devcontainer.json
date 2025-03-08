@@ -4,6 +4,9 @@
 		"compose.yaml"
 	],
 	"service": "php-laravel",
+    "features": {
+        "./features/claude-code": {}
+    },
 	"remoteUser": "vscode",
 	"remoteEnv": {
 		"APP_NAME": "laravel_app",
@@ -20,7 +23,7 @@
 	"forwardPorts": [8000],
 	"workspaceFolder": "/workspace",
 	"customizations": {
-		
+
 		"vscode": {
 			"settings": {
                 "terminal.integrated.profiles.linux": {
