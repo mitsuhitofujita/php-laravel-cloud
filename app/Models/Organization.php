@@ -52,4 +52,9 @@ class Organization extends Model
     {
         return $this->belongsToMany(Observer::class)->withTimestamps();
     }
+
+    public function subjects(): BelongsToMany
+    {
+        return $this->belongsToMany(Subject::class)->withTimestamps();
+    }
 }
