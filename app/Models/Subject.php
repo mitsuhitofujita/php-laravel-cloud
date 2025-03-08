@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Notifications\Notifiable;
 
 class Subject extends Model
@@ -25,14 +27,23 @@ class Subject extends Model
 
     protected $dispatchesEvents = [];
 
-    public function currentDetails()
-    {
-        return $this->hasOne(SubjectDetail::class)
-            ->latest('created_at');
-    }
-
-    public function details()
+    public function details(): HasMany
     {
         return $this->hasMany(SubjectDetail::class);
+    }
+
+    public function latestDetail(): HasOne
+    {
+        return $this->hasOne(SubjectDetail::class)->latest('created_at');
+    }
+
+    public function getNameAttribute(): string
+    {
+        return $this->latestDetail?->name;
+    }
+
+    public function getDescriptionAttribute(): string
+    {
+        return $this->latestDetail?->description;
     }
 }
