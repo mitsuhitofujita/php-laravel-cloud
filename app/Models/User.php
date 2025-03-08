@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Events\UserCreated;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -33,6 +34,15 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
+    
+    /**
+     * The event map for the model.
+     *
+     * @var array
+     */
+    protected $dispatchesEvents = [
+        'created' => \App\Events\UserCreated::class,
+    ];
 
     /**
      * Get the attributes that should be cast.
@@ -53,5 +63,14 @@ class User extends Authenticatable
     public function observers(): BelongsToMany
     {
         return $this->belongsToMany(Observer::class)->withTimestamps();
+    }
+    
+    /**
+     * Get the default observer associated with the user.
+     * If no observer exists, create one.
+     */
+    public function getDefaultObserver(): ?Observer
+    {
+        return $this->observers()->first();
     }
 }
