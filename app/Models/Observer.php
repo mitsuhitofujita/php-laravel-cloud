@@ -52,4 +52,9 @@ class Observer extends Model
     {
         return $this->belongsToMany(User::class)->withTimestamps();
     }
+
+    public function organizations(): BelongsToMany
+    {
+        return $this->belongsToMany(Organization::class)->withTimestamps();
+    }
 }
