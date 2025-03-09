@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Events\UserCreated;
+use App\Events\ObserverCreated;
 use App\Models\Observer;
 use App\Models\ObserverDetail;
 use App\Models\Organization;
@@ -20,22 +21,28 @@ class OrganizationTest extends TestCase
     {
         // イベントリスナーをモックして、自動Observer作成を防止
         Event::fake([UserCreated::class]);
+        Event::fake([ObserverCreated::class]);
 
         $user = User::factory()->create();
         $observer = Observer::factory()->create();
         ObserverDetail::factory()->create([
             'observer_id' => $observer->id,
+            'name' => 'Test Observer Name',
+            'description' => 'Test Observer Description',
         ]);
 
         $organization = Organization::factory()->create();
-        $detail = OrganizationDetail::factory()->create([
+        OrganizationDetail::factory()->create([
             'organization_id' => $organization->id,
-            'name' => 'Test Organization',
-            'description' => 'Test Description',
+            'name' => 'Test Organization Name',
+            'description' => 'Test Organization Description',
         ]);
 
         $user->observers()->attach($observer);
         $observer->organizations()->attach($organization);
+
+        $this->assertDatabaseCount('observer_user', 1);
+        $this->assertDatabaseCount('observer_organization', 1);
 
         $response = $this
             ->actingAs($user)
@@ -43,14 +50,14 @@ class OrganizationTest extends TestCase
 
         $response->assertOk();
         $response->assertViewIs('organization.show');
-        $response->assertSee('Test Organization');
-        $response->assertSee('Test Description');
+        $response->assertSee('Test Organization Name');
+        $response->assertSee('Test Organization Description');
     }
 
     public function test_organization_edit_page_is_displayed(): void
     {
         // イベントリスナーをモックして、自動Observer作成を防止
-        Event::fake([UserCreated::class]);
+        Event::fake([UserCreated::class, ObserverCreated::class]);
 
         $user = User::factory()->create();
         $observer = Observer::factory()->create();
@@ -61,8 +68,8 @@ class OrganizationTest extends TestCase
         $organization = Organization::factory()->create();
         $detail = OrganizationDetail::factory()->create([
             'organization_id' => $organization->id,
-            'name' => 'Test Organization',
-            'description' => 'Test Description',
+            'name' => 'Test Organization Name',
+            'description' => 'Test Organization Description',
         ]);
 
         $user->observers()->attach($observer);
@@ -74,14 +81,14 @@ class OrganizationTest extends TestCase
 
         $response->assertOk();
         $response->assertViewIs('organization.edit');
-        $response->assertSee('Test Organization');
-        $response->assertSee('Test Description');
+        $response->assertSee('Test Organization Name');
+        $response->assertSee('Test Organization Description');
     }
 
     public function test_organization_can_be_updated(): void
     {
         // イベントリスナーをモックして、自動Observer作成を防止
-        Event::fake([UserCreated::class]);
+        Event::fake([UserCreated::class, ObserverCreated::class]);
 
         $user = User::factory()->create();
         $observer = Observer::factory()->create();
@@ -127,7 +134,7 @@ class OrganizationTest extends TestCase
     public function test_organization_show_with_missing_organization_returns_404(): void
     {
         // イベントリスナーをモックして、自動Observer作成を防止
-        Event::fake([UserCreated::class]);
+        Event::fake([UserCreated::class, ObserverCreated::class]);
 
         $user = User::factory()->create();
         $observer = Observer::factory()->create();
@@ -148,7 +155,7 @@ class OrganizationTest extends TestCase
     public function test_organization_edit_with_missing_organization_returns_404(): void
     {
         // イベントリスナーをモックして、自動Observer作成を防止
-        Event::fake([UserCreated::class]);
+        Event::fake([UserCreated::class, ObserverCreated::class]);
 
         $user = User::factory()->create();
         $observer = Observer::factory()->create();
@@ -169,7 +176,7 @@ class OrganizationTest extends TestCase
     public function test_organization_update_with_missing_organization_returns_404(): void
     {
         // イベントリスナーをモックして、自動Observer作成を防止
-        Event::fake([UserCreated::class]);
+        Event::fake([UserCreated::class, ObserverCreated::class]);
 
         $user = User::factory()->create();
         $observer = Observer::factory()->create();
@@ -193,7 +200,7 @@ class OrganizationTest extends TestCase
     public function test_organization_update_validation_errors(): void
     {
         // イベントリスナーをモックして、自動Observer作成を防止
-        Event::fake([UserCreated::class]);
+        Event::fake([UserCreated::class, ObserverCreated::class]);
 
         $user = User::factory()->create();
         $observer = Observer::factory()->create();
