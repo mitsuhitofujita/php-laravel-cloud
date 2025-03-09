@@ -3,9 +3,9 @@
 ## Commands
 - Build: `npm run build`
 - Dev server: `composer run-script dev` (runs Laravel server, queue, logs, and Vite)
-- Test all: `ENV=testing php artisan test`
-- Test single: `ENV=testing php artisan test --filter=TestName`
-- Test class: `ENV=testing php artisan test --filter=ExampleTest`
+- Test all: `APP_ENV=testing php artisan test`
+- Test single: `APP_ENV=testing php artisan test --filter=TestName`
+- Test class: `APP_ENV=testing php artisan test --filter=ExampleTest`
 - Lint code: `./vendor/bin/pint`
 - Fix lint: `./vendor/bin/pint --fix`
 
