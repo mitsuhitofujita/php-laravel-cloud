@@ -27,6 +27,11 @@ class Observer extends Model
 
     protected $dateFormat = 'Y-m-d H:i:s.u';
 
+    /**
+     * イベントをトランザクション完了後に発行する
+     */
+    protected $afterCommit = true;
+
     protected $dispatchesEvents = [
         'created' => ObserverCreated::class,
     ];
