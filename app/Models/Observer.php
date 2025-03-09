@@ -74,4 +74,15 @@ class Observer extends Model
     {
         return $this->organizations()->first();
     }
+    
+    /**
+     * 関連する個人用Organizationを作成するジョブをディスパッチします。
+     * イベント以外の場所からでも再利用可能です。
+     * 
+     * @return void
+     */
+    public function createOrganization(): void
+    {
+        \App\Jobs\CreateOrganizationForObserver::dispatch($this);
+    }
 }
