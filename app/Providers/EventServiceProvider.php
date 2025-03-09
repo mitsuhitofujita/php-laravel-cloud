@@ -25,8 +25,8 @@ class EventServiceProvider extends ServiceProvider
         UserCreated::class => [
             EnsureUserHasObserver::class,
         ],
-        \App\Events\ObserverCreated::class => [
-            \App\Listeners\EnsureObserverHasOrganization::class,
+        ObserverCreated::class => [
+            EnsureObserverHasOrganization::class,
         ],
     ];
 

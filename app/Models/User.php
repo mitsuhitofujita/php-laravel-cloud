@@ -3,7 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use App\Events\UserCreated;
+use App\Jobs\CreateObserverForUser;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -13,7 +13,7 @@ class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
-    
+
     /**
      * イベントをトランザクション完了後に発行する
      */
@@ -39,7 +39,7 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
-    
+
     /**
      * The event map for the model.
      *
@@ -69,7 +69,7 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Observer::class)->withTimestamps();
     }
-    
+
     /**
      * Get the default observer associated with the user.
      * If no observer exists, create one.
@@ -78,15 +78,15 @@ class User extends Authenticatable
     {
         return $this->observers()->first();
     }
-    
+
     /**
      * 関連するObserverを作成するジョブをディスパッチします。
      * イベント以外の場所からでも再利用可能です。
-     * 
+     *
      * @return void
      */
     public function createObserver(): void
     {
-        \App\Jobs\CreateObserverForUser::dispatch($this);
+        CreateObserverForUser::dispatch($this);
     }
 }

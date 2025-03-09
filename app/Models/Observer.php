@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Events\ObserverCreated;
+use App\Jobs\CreateOrganizationForObserver;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -74,15 +75,15 @@ class Observer extends Model
     {
         return $this->organizations()->first();
     }
-    
+
     /**
      * 関連する個人用Organizationを作成するジョブをディスパッチします。
      * イベント以外の場所からでも再利用可能です。
-     * 
+     *
      * @return void
      */
     public function createOrganization(): void
     {
-        \App\Jobs\CreateOrganizationForObserver::dispatch($this);
+        CreateOrganizationForObserver::dispatch($this);
     }
 }

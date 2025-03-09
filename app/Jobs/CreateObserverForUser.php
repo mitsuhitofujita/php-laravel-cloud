@@ -41,19 +41,19 @@ class CreateObserverForUser implements ShouldQueue
         if ($this->user->observers()->exists()) {
             return;
         }
-        
+
         // トランザクションを使用して処理の整合性を確保
         DB::transaction(function () {
             // 新しいObserverを作成
             $observer = Observer::create();
-            
+
             // ObserverDetailを作成して関連付け
             ObserverDetail::create([
                 'observer_id' => $observer->id,
                 'name' => $this->user->name,
                 'description' => 'Default observer for ' . $this->user->email,
             ]);
-            
+
             // UserとObserverを関連付け
             $this->user->observers()->attach($observer->id);
         });
