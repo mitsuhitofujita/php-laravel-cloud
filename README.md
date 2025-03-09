@@ -65,7 +65,15 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
 
+## テーブル制約
+
+Eloquent多対多関連機能の制約で中間テーブルにupdated_atカラムを設定する必要があった。
+
 ## Commands
 
-psql -h 127.0.0.1 -p 5433 -U laravel laravel_app_database_local
+psql -h localhost -p 5432 -U laravel laravel_app_database_local
 
+php artisan serv --host 0.0.0.0
+
+APP_ENV=testing php artisan test
+APP_ENV=testing php artisan test --filter=ObserverTest
