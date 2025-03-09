@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ObserverUpdateRequest;
 use App\Models\Observer;
 use App\Models\ObserverDetail;
 use Illuminate\Http\Request;
@@ -51,7 +52,7 @@ class ObserverController extends Controller
      * 現在のユーザーに関連するObserverを更新する
      * 更新時には新しいObserverDetailレコードを作成する
      */
-    public function update(Request $request)
+    public function update(ObserverUpdateRequest $request)
     {
         $user = $request->user();
         $observer = $user->getDefaultObserver();
@@ -60,11 +61,8 @@ class ObserverController extends Controller
             abort(404, 'Observer not found');
         }
         
-        // リクエストを検証
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string', 'max:1000'],
-        ]);
+        // バリデーション済みデータを取得
+        $validated = $request->validated();
         
         // トランザクションを使用してデータの整合性を確保
         DB::transaction(function () use ($observer, $validated) {
