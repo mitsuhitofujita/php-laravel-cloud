@@ -13,6 +13,11 @@ class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
+    
+    /**
+     * イベントをトランザクション完了後に発行する
+     */
+    protected $afterCommit = true;
 
     /**
      * The attributes that are mass assignable.
@@ -72,5 +77,16 @@ class User extends Authenticatable
     public function getDefaultObserver(): ?Observer
     {
         return $this->observers()->first();
+    }
+    
+    /**
+     * 関連するObserverを作成するジョブをディスパッチします。
+     * イベント以外の場所からでも再利用可能です。
+     * 
+     * @return void
+     */
+    public function createObserver(): void
+    {
+        \App\Jobs\CreateObserverForUser::dispatch($this);
     }
 }
