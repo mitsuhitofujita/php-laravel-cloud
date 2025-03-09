@@ -74,6 +74,7 @@ Eloquent多対多関連機能の制約で中間テーブルにupdated_atカラ�
 psql -h localhost -p 5432 -U laravel laravel_app_database_local
 
 php artisan serv --host 0.0.0.0
+php artisan queue:work
 
 APP_ENV=testing php artisan test
 APP_ENV=testing php artisan test --filter=ObserverTest

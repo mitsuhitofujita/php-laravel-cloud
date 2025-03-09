@@ -14,17 +14,6 @@ class UserCreationTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        // テスト中はジョブをすぐに実行するように設定
-        Bus::fake()->except([
-            CreateObserverForUser::class,
-            CreateOrganizationForObserver::class,
-        ]);
-    }
-
     public function test_user_has_observer_and_organization_when_created(): void
     {
         // テスト前の状態を確認
@@ -37,9 +26,6 @@ class UserCreationTest extends TestCase
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
-
-        // イベントではなく直接ジョブを実行
-        (new CreateObserverForUser($user))->handle();
 
         // リフレッシュしてリレーションシップを更新
         $user = User::find($user->id);
@@ -54,9 +40,6 @@ class UserCreationTest extends TestCase
             'name' => 'Test User',
             'description' => 'Default observer for test@example.com',
         ]);
-
-        // 直接Organizationの作成ジョブを実行
-        (new CreateOrganizationForObserver($observer))->handle();
 
         // 新しくOrganizationが取得できるはず
         $organization = $observer->getDefaultOrganization();

@@ -4,8 +4,9 @@ namespace App\Listeners;
 
 use App\Events\UserCreated;
 use App\Jobs\CreateObserverForUser;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 
-class EnsureUserHasObserver
+class EnsureUserHasObserver implements ShouldQueueAfterCommit
 {
     /**
      * Create the event listener.

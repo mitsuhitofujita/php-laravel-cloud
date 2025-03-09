@@ -26,6 +26,8 @@ class Organization extends Model
 
     protected $dateFormat = 'Y-m-d H:i:s.u';
 
+    protected $afterCommit = true;
+
     protected $dispatchesEvents = [];
 
     public function details(): HasMany

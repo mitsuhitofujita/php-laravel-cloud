@@ -16,189 +16,182 @@ class ObserverTest extends TestCase
 
     public function test_observer_show_page_is_displayed(): void
     {
-        // イベントリスナーをモックして、自動Observer作成を防止
-        Event::fake([UserCreated::class]);
+        Event::fakeFor(function () {
+            $user = User::factory()->create();
+            $observer = Observer::factory()->create();
+            $detail = ObserverDetail::factory()->create([
+                'observer_id' => $observer->id,
+                'name' => 'Test Observer',
+                'description' => 'Test Description',
+            ]);
 
-        $user = User::factory()->create();
-        $observer = Observer::factory()->create();
-        $detail = ObserverDetail::factory()->create([
-            'observer_id' => $observer->id,
-            'name' => 'Test Observer',
-            'description' => 'Test Description',
-        ]);
+            $user->observers()->attach($observer);
 
-        $user->observers()->attach($observer);
+            $response = $this
+                ->actingAs($user)
+                ->get(route('observer.show'));
 
-        $response = $this
-            ->actingAs($user)
-            ->get(route('observer.show'));
-
-        $response->assertOk();
-        $response->assertViewIs('observer.show');
-        $response->assertSee('Test Observer');
-        $response->assertSee('Test Description');
+            $response->assertOk();
+            $response->assertViewIs('observer.show');
+            $response->assertSee('Test Observer');
+            $response->assertSee('Test Description');
+        }, [UserCreated::class]);
     }
 
     public function test_observer_edit_page_is_displayed(): void
     {
-        // イベントリスナーをモックして、自動Observer作成を防止
-        Event::fake([UserCreated::class]);
+        Event::fakeFor(function () {
+            $user = User::factory()->create();
+            $observer = Observer::factory()->create();
+            $detail = ObserverDetail::factory()->create([
+                'observer_id' => $observer->id,
+                'name' => 'Test Observer',
+                'description' => 'Test Description',
+            ]);
 
-        $user = User::factory()->create();
-        $observer = Observer::factory()->create();
-        $detail = ObserverDetail::factory()->create([
-            'observer_id' => $observer->id,
-            'name' => 'Test Observer',
-            'description' => 'Test Description',
-        ]);
+            $user->observers()->attach($observer);
 
-        $user->observers()->attach($observer);
+            $response = $this
+                ->actingAs($user)
+                ->get(route('observer.edit'));
 
-        $response = $this
-            ->actingAs($user)
-            ->get(route('observer.edit'));
-
-        $response->assertOk();
-        $response->assertViewIs('observer.edit');
-        $response->assertSee('Test Observer');
-        $response->assertSee('Test Description');
+            $response->assertOk();
+            $response->assertViewIs('observer.edit');
+            $response->assertSee('Test Observer');
+            $response->assertSee('Test Description');
+        }, [UserCreated::class]);
     }
 
     public function test_observer_can_be_updated(): void
     {
-        // イベントリスナーをモックして、自動Observer作成を防止
-        Event::fake([UserCreated::class]);
+        Event::fakeFor(function () {
+            $user = User::factory()->create();
+            $observer = Observer::factory()->create();
+            ObserverDetail::factory()->create([
+                'observer_id' => $observer->id,
+                'name' => 'Original Name',
+                'description' => 'Original Description',
+            ]);
 
-        $user = User::factory()->create();
-        $observer = Observer::factory()->create();
-        ObserverDetail::factory()->create([
-            'observer_id' => $observer->id,
-            'name' => 'Original Name',
-            'description' => 'Original Description',
-        ]);
+            $user->observers()->attach($observer);
 
-        $user->observers()->attach($observer);
+            $response = $this
+                ->actingAs($user)
+                ->put(route('observer.update'), [
+                    'name' => 'Updated Name',
+                    'description' => 'Updated Description',
+                ]);
 
-        $response = $this
-            ->actingAs($user)
-            ->put(route('observer.update'), [
+            $response->assertRedirect(route('observer.show'));
+            $response->assertSessionHas('status', 'observer-updated');
+
+            // 新しいObserverDetailが作成されたことを確認
+            $this->assertDatabaseHas('observer_details', [
+                'observer_id' => $observer->id,
                 'name' => 'Updated Name',
                 'description' => 'Updated Description',
             ]);
 
-        $response->assertRedirect(route('observer.show'));
-        $response->assertSessionHas('status', 'observer-updated');
-
-        // 新しいObserverDetailが作成されたことを確認
-        $this->assertDatabaseHas('observer_details', [
-            'observer_id' => $observer->id,
-            'name' => 'Updated Name',
-            'description' => 'Updated Description',
-        ]);
-
-        // 元のObserverDetailも残っていることを確認
-        $this->assertDatabaseHas('observer_details', [
-            'observer_id' => $observer->id,
-            'name' => 'Original Name',
-            'description' => 'Original Description',
-        ]);
+            // 元のObserverDetailも残っていることを確認
+            $this->assertDatabaseHas('observer_details', [
+                'observer_id' => $observer->id,
+                'name' => 'Original Name',
+                'description' => 'Original Description',
+            ]);
+        }, [UserCreated::class]);
     }
 
     public function test_observer_show_with_missing_observer_returns_404(): void
     {
-        // イベントリスナーをモックして、自動Observer作成を防止
-        Event::fake([UserCreated::class]);
+        Event::fakeFor(function () {
+            // Observerを持たないユーザーを作成
+            $user = User::factory()->create();
 
-        // Observerを持たないユーザーを作成
-        $user = User::factory()->create();
+            // Observerが存在しない状態で閲覧ページにアクセス
+            $response = $this
+                ->actingAs($user)
+                ->get(route('observer.show'));
 
-        // Observerが存在しない状態で閲覧ページにアクセス
-        $response = $this
-            ->actingAs($user)
-            ->get(route('observer.show'));
-
-        // 404エラーが返されることを確認
-        $response->assertNotFound();
+            // 404エラーが返されることを確認
+            $response->assertNotFound();
+        }, [UserCreated::class]);
     }
 
     public function test_observer_edit_with_missing_observer_returns_404(): void
     {
-        // イベントリスナーをモックして、自動Observer作成を防止
-        Event::fake([UserCreated::class]);
+        Event::fakeFor(function () {
+            // Observerを持たないユーザーを作成
+            $user = User::factory()->create();
 
-        // Observerを持たないユーザーを作成
-        $user = User::factory()->create();
+            // Observerが存在しない状態で編集ページにアクセス
+            $response = $this
+                ->actingAs($user)
+                ->get(route('observer.edit'));
 
-        // Observerが存在しない状態で編集ページにアクセス
-        $response = $this
-            ->actingAs($user)
-            ->get(route('observer.edit'));
-
-        // 404エラーが返されることを確認
-        $response->assertNotFound();
+            // 404エラーが返されることを確認
+            $response->assertNotFound();
+        }, [UserCreated::class]);
     }
 
     public function test_observer_update_with_missing_observer_returns_404(): void
     {
-        // イベントリスナーをモックして、自動Observer作成を防止
-        Event::fake([UserCreated::class]);
+        Event::fakeFor(function () {
+            // Observerを持たないユーザーを作成
+            $user = User::factory()->create();
 
-        // Observerを持たないユーザーを作成
-        $user = User::factory()->create();
+            // Observerが存在しない状態で更新を試みる
+            $response = $this
+                ->actingAs($user)
+                ->put(route('observer.update'), [
+                    'name' => 'Test Name',
+                    'description' => 'Test Description',
+                ]);
 
-        // Observerが存在しない状態で更新を試みる
-        $response = $this
-            ->actingAs($user)
-            ->put(route('observer.update'), [
-                'name' => 'Test Name',
-                'description' => 'Test Description',
-            ]);
-
-        // 404エラーが返されることを確認
-        $response->assertNotFound();
+            // 404エラーが返されることを確認
+            $response->assertNotFound();
+        }, [UserCreated::class]);
     }
 
     public function test_observer_update_validation_errors(): void
     {
-        // イベントリスナーをモックして、自動Observer作成を防止
-        Event::fake([UserCreated::class]);
-
-        $user = User::factory()->create();
-        $observer = Observer::factory()->create();
-        ObserverDetail::factory()->create([
-            'observer_id' => $observer->id,
-        ]);
-
-        $user->observers()->attach($observer);
-
-        // 名前が未入力の場合
-        $response = $this
-            ->actingAs($user)
-            ->put(route('observer.update'), [
-                'name' => '',
-                'description' => 'Test Description',
+        Event::fakeFor(function () {
+            $user = User::factory()->create();
+            $observer = Observer::factory()->create();
+            ObserverDetail::factory()->create([
+                'observer_id' => $observer->id,
             ]);
 
-        $response->assertSessionHasErrors('name');
+            $user->observers()->attach($observer);
 
-        // 名前が長すぎる場合
-        $response = $this
-            ->actingAs($user)
-            ->put(route('observer.update'), [
-                'name' => str_repeat('a', 256),
-                'description' => 'Test Description',
-            ]);
+            // 名前が未入力の場合
+            $response = $this
+                ->actingAs($user)
+                ->put(route('observer.update'), [
+                    'name' => '',
+                    'description' => 'Test Description',
+                ]);
 
-        $response->assertSessionHasErrors('name');
+            $response->assertSessionHasErrors('name');
 
-        // 説明が長すぎる場合
-        $response = $this
-            ->actingAs($user)
-            ->put(route('observer.update'), [
-                'name' => 'Test Name',
-                'description' => str_repeat('a', 1001),
-            ]);
+            // 名前が長すぎる場合
+            $response = $this
+                ->actingAs($user)
+                ->put(route('observer.update'), [
+                    'name' => str_repeat('a', 256),
+                    'description' => 'Test Description',
+                ]);
 
-        $response->assertSessionHasErrors('description');
+            $response->assertSessionHasErrors('name');
+
+            // 説明が長すぎる場合
+            $response = $this
+                ->actingAs($user)
+                ->put(route('observer.update'), [
+                    'name' => 'Test Name',
+                    'description' => str_repeat('a', 1001),
+                ]);
+
+            $response->assertSessionHasErrors('description');
+        }, [UserCreated::class]);
     }
 }

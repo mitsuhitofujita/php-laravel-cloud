@@ -19,231 +19,223 @@ class OrganizationTest extends TestCase
 
     public function test_organization_show_page_is_displayed(): void
     {
-        // イベントリスナーをモックして、自動Observer作成を防止
-        Event::fake([UserCreated::class]);
-        Event::fake([ObserverCreated::class]);
+        Event::fakeFor(function () {
+            $user = User::factory()->create();
+            $observer = Observer::factory()->create();
+            ObserverDetail::factory()->create([
+                'observer_id' => $observer->id,
+                'name' => 'Test Observer Name',
+                'description' => 'Test Observer Description',
+            ]);
 
-        $user = User::factory()->create();
-        $observer = Observer::factory()->create();
-        ObserverDetail::factory()->create([
-            'observer_id' => $observer->id,
-            'name' => 'Test Observer Name',
-            'description' => 'Test Observer Description',
-        ]);
+            $organization = Organization::factory()->create();
+            OrganizationDetail::factory()->create([
+                'organization_id' => $organization->id,
+                'name' => 'Test Organization Name',
+                'description' => 'Test Organization Description',
+            ]);
 
-        $organization = Organization::factory()->create();
-        OrganizationDetail::factory()->create([
-            'organization_id' => $organization->id,
-            'name' => 'Test Organization Name',
-            'description' => 'Test Organization Description',
-        ]);
+            $user->observers()->attach($observer);
+            $observer->organizations()->attach($organization);
 
-        $user->observers()->attach($observer);
-        $observer->organizations()->attach($organization);
+            $this->assertDatabaseCount('observer_user', 1);
+            $this->assertDatabaseCount('observer_organization', 1);
 
-        $this->assertDatabaseCount('observer_user', 1);
-        $this->assertDatabaseCount('observer_organization', 1);
+            $response = $this
+                ->actingAs($user)
+                ->get(route('organization.show'));
 
-        $response = $this
-            ->actingAs($user)
-            ->get(route('organization.show'));
-
-        $response->assertOk();
-        $response->assertViewIs('organization.show');
-        $response->assertSee('Test Organization Name');
-        $response->assertSee('Test Organization Description');
+            $response->assertOk();
+            $response->assertViewIs('organization.show');
+            $response->assertSee('Test Organization Name');
+            $response->assertSee('Test Organization Description');
+        }, [UserCreated::class, ObserverCreated::class]);
     }
 
     public function test_organization_edit_page_is_displayed(): void
     {
-        // イベントリスナーをモックして、自動Observer作成を防止
-        Event::fake([UserCreated::class, ObserverCreated::class]);
+        Event::fakeFor(function () {
+            $user = User::factory()->create();
+            $observer = Observer::factory()->create();
+            ObserverDetail::factory()->create([
+                'observer_id' => $observer->id,
+            ]);
 
-        $user = User::factory()->create();
-        $observer = Observer::factory()->create();
-        ObserverDetail::factory()->create([
-            'observer_id' => $observer->id,
-        ]);
+            $organization = Organization::factory()->create();
+            OrganizationDetail::factory()->create([
+                'organization_id' => $organization->id,
+                'name' => 'Test Organization Name',
+                'description' => 'Test Organization Description',
+            ]);
 
-        $organization = Organization::factory()->create();
-        $detail = OrganizationDetail::factory()->create([
-            'organization_id' => $organization->id,
-            'name' => 'Test Organization Name',
-            'description' => 'Test Organization Description',
-        ]);
+            $user->observers()->attach($observer);
+            $observer->organizations()->attach($organization);
 
-        $user->observers()->attach($observer);
-        $observer->organizations()->attach($organization);
+            $response = $this
+                ->actingAs($user)
+                ->get(route('organization.edit'));
 
-        $response = $this
-            ->actingAs($user)
-            ->get(route('organization.edit'));
-
-        $response->assertOk();
-        $response->assertViewIs('organization.edit');
-        $response->assertSee('Test Organization Name');
-        $response->assertSee('Test Organization Description');
+            $response->assertOk();
+            $response->assertViewIs('organization.edit');
+            $response->assertSee('Test Organization Name');
+            $response->assertSee('Test Organization Description');
+        }, [UserCreated::class, ObserverCreated::class]);
     }
 
     public function test_organization_can_be_updated(): void
     {
-        // イベントリスナーをモックして、自動Observer作成を防止
-        Event::fake([UserCreated::class, ObserverCreated::class]);
+        Event::fakeFor(function () {
+            $user = User::factory()->create();
+            $observer = Observer::factory()->create();
+            ObserverDetail::factory()->create([
+                'observer_id' => $observer->id,
+            ]);
 
-        $user = User::factory()->create();
-        $observer = Observer::factory()->create();
-        ObserverDetail::factory()->create([
-            'observer_id' => $observer->id,
-        ]);
+            $organization = Organization::factory()->create();
+            OrganizationDetail::factory()->create([
+                'organization_id' => $organization->id,
+                'name' => 'Original Name',
+                'description' => 'Original Description',
+            ]);
 
-        $organization = Organization::factory()->create();
-        OrganizationDetail::factory()->create([
-            'organization_id' => $organization->id,
-            'name' => 'Original Name',
-            'description' => 'Original Description',
-        ]);
+            $user->observers()->attach($observer);
+            $observer->organizations()->attach($organization);
 
-        $user->observers()->attach($observer);
-        $observer->organizations()->attach($organization);
+            $response = $this
+                ->actingAs($user)
+                ->put(route('organization.update'), [
+                    'name' => 'Updated Name',
+                    'description' => 'Updated Description',
+                ]);
 
-        $response = $this
-            ->actingAs($user)
-            ->put(route('organization.update'), [
+            $response->assertRedirect(route('organization.show'));
+            $response->assertSessionHas('status', 'organization-updated');
+
+            // 新しいOrganizationDetailが作成されたことを確認
+            $this->assertDatabaseHas('organization_details', [
+                'organization_id' => $organization->id,
                 'name' => 'Updated Name',
                 'description' => 'Updated Description',
             ]);
 
-        $response->assertRedirect(route('organization.show'));
-        $response->assertSessionHas('status', 'organization-updated');
-
-        // 新しいOrganizationDetailが作成されたことを確認
-        $this->assertDatabaseHas('organization_details', [
-            'organization_id' => $organization->id,
-            'name' => 'Updated Name',
-            'description' => 'Updated Description',
-        ]);
-
-        // 元のOrganizationDetailも残っていることを確認
-        $this->assertDatabaseHas('organization_details', [
-            'organization_id' => $organization->id,
-            'name' => 'Original Name',
-            'description' => 'Original Description',
-        ]);
+            // 元のOrganizationDetailも残っていることを確認
+            $this->assertDatabaseHas('organization_details', [
+                'organization_id' => $organization->id,
+                'name' => 'Original Name',
+                'description' => 'Original Description',
+            ]);
+        }, [UserCreated::class, ObserverCreated::class]);
     }
 
     public function test_organization_show_with_missing_organization_returns_404(): void
     {
-        // イベントリスナーをモックして、自動Observer作成を防止
-        Event::fake([UserCreated::class, ObserverCreated::class]);
+        Event::fakeFor(function () {
+            $user = User::factory()->create();
+            $observer = Observer::factory()->create();
+            ObserverDetail::factory()->create([
+                'observer_id' => $observer->id,
+            ]);
 
-        $user = User::factory()->create();
-        $observer = Observer::factory()->create();
-        ObserverDetail::factory()->create([
-            'observer_id' => $observer->id,
-        ]);
+            $user->observers()->attach($observer);
+            // Organizationは作成しない
 
-        $user->observers()->attach($observer);
-        // Organizationは作成しない
+            $response = $this
+                ->actingAs($user)
+                ->get(route('organization.show'));
 
-        $response = $this
-            ->actingAs($user)
-            ->get(route('organization.show'));
-
-        $response->assertNotFound();
+            $response->assertNotFound();
+        }, [UserCreated::class, ObserverCreated::class]);
     }
 
     public function test_organization_edit_with_missing_organization_returns_404(): void
     {
-        // イベントリスナーをモックして、自動Observer作成を防止
-        Event::fake([UserCreated::class, ObserverCreated::class]);
+        Event::fakeFor(function () {
+            $user = User::factory()->create();
+            $observer = Observer::factory()->create();
+            ObserverDetail::factory()->create([
+                'observer_id' => $observer->id,
+            ]);
 
-        $user = User::factory()->create();
-        $observer = Observer::factory()->create();
-        ObserverDetail::factory()->create([
-            'observer_id' => $observer->id,
-        ]);
+            $user->observers()->attach($observer);
+            // Organizationは作成しない
 
-        $user->observers()->attach($observer);
-        // Organizationは作成しない
+            $response = $this
+                ->actingAs($user)
+                ->get(route('organization.edit'));
 
-        $response = $this
-            ->actingAs($user)
-            ->get(route('organization.edit'));
-
-        $response->assertNotFound();
+            $response->assertNotFound();
+        }, [UserCreated::class, ObserverCreated::class]);
     }
 
     public function test_organization_update_with_missing_organization_returns_404(): void
     {
-        // イベントリスナーをモックして、自動Observer作成を防止
-        Event::fake([UserCreated::class, ObserverCreated::class]);
-
-        $user = User::factory()->create();
-        $observer = Observer::factory()->create();
-        ObserverDetail::factory()->create([
-            'observer_id' => $observer->id,
-        ]);
-
-        $user->observers()->attach($observer);
-        // Organizationは作成しない
-
-        $response = $this
-            ->actingAs($user)
-            ->put(route('organization.update'), [
-                'name' => 'Test Name',
-                'description' => 'Test Description',
+        Event::fakeFor(function () {
+            $user = User::factory()->create();
+            $observer = Observer::factory()->create();
+            ObserverDetail::factory()->create([
+                'observer_id' => $observer->id,
             ]);
 
-        $response->assertNotFound();
+            $user->observers()->attach($observer);
+            // Organizationは作成しない
+
+            $response = $this
+                ->actingAs($user)
+                ->put(route('organization.update'), [
+                    'name' => 'Test Name',
+                    'description' => 'Test Description',
+                ]);
+
+            $response->assertNotFound();
+        }, [UserCreated::class, ObserverCreated::class]);
     }
 
     public function test_organization_update_validation_errors(): void
     {
-        // イベントリスナーをモックして、自動Observer作成を防止
-        Event::fake([UserCreated::class, ObserverCreated::class]);
-
-        $user = User::factory()->create();
-        $observer = Observer::factory()->create();
-        ObserverDetail::factory()->create([
-            'observer_id' => $observer->id,
-        ]);
-
-        $organization = Organization::factory()->create();
-        OrganizationDetail::factory()->create([
-            'organization_id' => $organization->id,
-        ]);
-
-        $user->observers()->attach($observer);
-        $observer->organizations()->attach($organization);
-
-        // 名前が未入力の場合
-        $response = $this
-            ->actingAs($user)
-            ->put(route('organization.update'), [
-                'name' => '',
-                'description' => 'Test Description',
+        Event::fakeFor(function () {
+            $user = User::factory()->create();
+            $observer = Observer::factory()->create();
+            ObserverDetail::factory()->create([
+                'observer_id' => $observer->id,
             ]);
 
-        $response->assertSessionHasErrors('name');
-
-        // 名前が長すぎる場合
-        $response = $this
-            ->actingAs($user)
-            ->put(route('organization.update'), [
-                'name' => str_repeat('a', 256),
-                'description' => 'Test Description',
+            $organization = Organization::factory()->create();
+            OrganizationDetail::factory()->create([
+                'organization_id' => $organization->id,
             ]);
 
-        $response->assertSessionHasErrors('name');
+            $user->observers()->attach($observer);
+            $observer->organizations()->attach($organization);
 
-        // 説明が長すぎる場合
-        $response = $this
-            ->actingAs($user)
-            ->put(route('organization.update'), [
-                'name' => 'Test Name',
-                'description' => str_repeat('a', 1001),
-            ]);
+            // 名前が未入力の場合
+            $response = $this
+                ->actingAs($user)
+                ->put(route('organization.update'), [
+                    'name' => '',
+                    'description' => 'Test Description',
+                ]);
 
-        $response->assertSessionHasErrors('description');
+            $response->assertSessionHasErrors('name');
+
+            // 名前が長すぎる場合
+            $response = $this
+                ->actingAs($user)
+                ->put(route('organization.update'), [
+                    'name' => str_repeat('a', 256),
+                    'description' => 'Test Description',
+                ]);
+
+            $response->assertSessionHasErrors('name');
+
+            // 説明が長すぎる場合
+            $response = $this
+                ->actingAs($user)
+                ->put(route('organization.update'), [
+                    'name' => 'Test Name',
+                    'description' => str_repeat('a', 1001),
+                ]);
+
+            $response->assertSessionHasErrors('description');
+        }, [UserCreated::class, ObserverCreated::class]);
     }
 }

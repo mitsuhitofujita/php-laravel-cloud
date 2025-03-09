@@ -4,8 +4,9 @@ namespace App\Listeners;
 
 use App\Events\ObserverCreated;
 use App\Jobs\CreateOrganizationForObserver;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 
-class EnsureObserverHasOrganization
+class EnsureObserverHasOrganization implements ShouldQueueAfterCommit
 {
     /**
      * Create the event listener.
