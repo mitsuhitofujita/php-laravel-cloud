@@ -51,7 +51,7 @@ class CreateObserverForUser implements ShouldQueue
             ObserverDetail::create([
                 'observer_id' => $observer->id,
                 'name' => $this->user->name,
-                'description' => 'Default observer for ' . $this->user->email,
+                'description' => 'Default observer for '.$this->user->email,
             ]);
 
             // UserとObserverを関連付け

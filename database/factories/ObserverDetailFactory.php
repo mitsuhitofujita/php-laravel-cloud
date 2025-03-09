@@ -28,7 +28,7 @@ class ObserverDetailFactory extends Factory
         return [
             'observer_id' => Observer::factory(),
             'name' => fake()->name(),
-            'description' => fake()->jobTitle() . ' - ' . fake()->sentence(),
+            'description' => fake()->jobTitle().' - '.fake()->sentence(),
         ];
     }
 }

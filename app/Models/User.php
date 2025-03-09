@@ -82,8 +82,6 @@ class User extends Authenticatable
     /**
      * 関連するObserverを作成するジョブをディスパッチします。
      * イベント以外の場所からでも再利用可能です。
-     *
-     * @return void
      */
     public function createObserver(): void
     {
