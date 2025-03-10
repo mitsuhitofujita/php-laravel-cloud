@@ -28,6 +28,8 @@ class OrganizationTest extends TestCase
                 'description' => 'Test Observer Description',
             ]);
 
+            $user->observers()->attach($observer);
+
             $organization = Organization::factory()->create();
             OrganizationDetail::factory()->create([
                 'organization_id' => $organization->id,
@@ -35,7 +37,6 @@ class OrganizationTest extends TestCase
                 'description' => 'Test Organization Description',
             ]);
 
-            $user->observers()->attach($observer);
             $observer->organizations()->attach($organization);
 
             $this->assertDatabaseCount('observer_user', 1);
@@ -61,6 +62,8 @@ class OrganizationTest extends TestCase
                 'observer_id' => $observer->id,
             ]);
 
+            $user->observers()->attach($observer);
+
             $organization = Organization::factory()->create();
             OrganizationDetail::factory()->create([
                 'organization_id' => $organization->id,
@@ -68,7 +71,6 @@ class OrganizationTest extends TestCase
                 'description' => 'Test Organization Description',
             ]);
 
-            $user->observers()->attach($observer);
             $observer->organizations()->attach($organization);
 
             $response = $this
@@ -94,8 +96,8 @@ class OrganizationTest extends TestCase
             $organization = Organization::factory()->create();
             OrganizationDetail::factory()->create([
                 'organization_id' => $organization->id,
-                'name' => 'Original Name',
-                'description' => 'Original Description',
+                'name' => 'Test Organization Original Name',
+                'description' => 'Test Organization Original Description',
             ]);
 
             $user->observers()->attach($observer);
@@ -104,8 +106,8 @@ class OrganizationTest extends TestCase
             $response = $this
                 ->actingAs($user)
                 ->put(route('organization.update'), [
-                    'name' => 'Updated Name',
-                    'description' => 'Updated Description',
+                    'name' => 'Test Organization Updated Name',
+                    'description' => 'Test Organization Updated Description',
                 ]);
 
             $response->assertRedirect(route('organization.show'));
@@ -114,15 +116,15 @@ class OrganizationTest extends TestCase
             // 新しいOrganizationDetailが作成されたことを確認
             $this->assertDatabaseHas('organization_details', [
                 'organization_id' => $organization->id,
-                'name' => 'Updated Name',
-                'description' => 'Updated Description',
+                'name' => 'Test Organization Updated Name',
+                'description' => 'Test Organization Updated Description',
             ]);
 
             // 元のOrganizationDetailも残っていることを確認
             $this->assertDatabaseHas('organization_details', [
                 'organization_id' => $organization->id,
-                'name' => 'Original Name',
-                'description' => 'Original Description',
+                'name' => 'Test Organization Original Name',
+                'description' => 'Test Organization Original Description',
             ]);
         }, [UserCreated::class, ObserverCreated::class]);
     }
@@ -137,6 +139,7 @@ class OrganizationTest extends TestCase
             ]);
 
             $user->observers()->attach($observer);
+
             // Organizationは作成しない
 
             $response = $this
@@ -157,6 +160,7 @@ class OrganizationTest extends TestCase
             ]);
 
             $user->observers()->attach($observer);
+
             // Organizationは作成しない
 
             $response = $this
@@ -177,6 +181,7 @@ class OrganizationTest extends TestCase
             ]);
 
             $user->observers()->attach($observer);
+
             // Organizationは作成しない
 
             $response = $this

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Events\ObserverCreated;
 use App\Events\UserCreated;
 use App\Models\Observer;
 use App\Models\ObserverDetail;
@@ -19,10 +20,10 @@ class ObserverTest extends TestCase
         Event::fakeFor(function () {
             $user = User::factory()->create();
             $observer = Observer::factory()->create();
-            $detail = ObserverDetail::factory()->create([
+            ObserverDetail::factory()->create([
                 'observer_id' => $observer->id,
-                'name' => 'Test Observer',
-                'description' => 'Test Description',
+                'name' => 'Test Observer Name',
+                'description' => 'Test Observer Description',
             ]);
 
             $user->observers()->attach($observer);
@@ -33,9 +34,9 @@ class ObserverTest extends TestCase
 
             $response->assertOk();
             $response->assertViewIs('observer.show');
-            $response->assertSee('Test Observer');
-            $response->assertSee('Test Description');
-        }, [UserCreated::class]);
+            $response->assertSee('Test Observer Name');
+            $response->assertSee('Test Observer Description');
+        }, [UserCreated::class, ObserverCreated::class]);
     }
 
     public function test_observer_edit_page_is_displayed(): void
@@ -43,10 +44,10 @@ class ObserverTest extends TestCase
         Event::fakeFor(function () {
             $user = User::factory()->create();
             $observer = Observer::factory()->create();
-            $detail = ObserverDetail::factory()->create([
+            ObserverDetail::factory()->create([
                 'observer_id' => $observer->id,
-                'name' => 'Test Observer',
-                'description' => 'Test Description',
+                'name' => 'Test Observer Name',
+                'description' => 'Test Observer Description',
             ]);
 
             $user->observers()->attach($observer);
@@ -57,29 +58,29 @@ class ObserverTest extends TestCase
 
             $response->assertOk();
             $response->assertViewIs('observer.edit');
-            $response->assertSee('Test Observer');
-            $response->assertSee('Test Description');
-        }, [UserCreated::class]);
+            $response->assertSee('Test Observer Name');
+            $response->assertSee('Test Observer Description');
+        }, [UserCreated::class, ObserverCreated::class]);
     }
 
     public function test_observer_can_be_updated(): void
     {
         Event::fakeFor(function () {
-            $user = User::factory()->create();
-            $observer = Observer::factory()->create();
+            $originalUser = User::factory()->create();
+            $originalObserver = Observer::factory()->create();
             ObserverDetail::factory()->create([
-                'observer_id' => $observer->id,
-                'name' => 'Original Name',
-                'description' => 'Original Description',
+                'observer_id' => $originalObserver->id,
+                'name' => 'Test Original Observer Name',
+                'description' => 'Test Original Observer Description',
             ]);
 
-            $user->observers()->attach($observer);
+            $originalUser->observers()->attach($originalObserver);
 
             $response = $this
-                ->actingAs($user)
+                ->actingAs($originalUser)
                 ->put(route('observer.update'), [
-                    'name' => 'Updated Name',
-                    'description' => 'Updated Description',
+                    'name' => 'Test Updated Observer Name',
+                    'description' => 'Test Updated Observer Description',
                 ]);
 
             $response->assertRedirect(route('observer.show'));
@@ -87,18 +88,18 @@ class ObserverTest extends TestCase
 
             // 新しいObserverDetailが作成されたことを確認
             $this->assertDatabaseHas('observer_details', [
-                'observer_id' => $observer->id,
-                'name' => 'Updated Name',
-                'description' => 'Updated Description',
+                'observer_id' => $originalObserver->id,
+                'name' => 'Test Updated Observer Name',
+                'description' => 'Test Updated Observer Description',
             ]);
 
             // 元のObserverDetailも残っていることを確認
             $this->assertDatabaseHas('observer_details', [
-                'observer_id' => $observer->id,
-                'name' => 'Original Name',
-                'description' => 'Original Description',
+                'observer_id' => $originalObserver->id,
+                'name' => 'Test Original Observer Name',
+                'description' => 'Test Original Observer Description',
             ]);
-        }, [UserCreated::class]);
+        }, [UserCreated::class, ObserverCreated::class]);
     }
 
     public function test_observer_show_with_missing_observer_returns_404(): void
@@ -143,8 +144,8 @@ class ObserverTest extends TestCase
             $response = $this
                 ->actingAs($user)
                 ->put(route('observer.update'), [
-                    'name' => 'Test Name',
-                    'description' => 'Test Description',
+                    'name' => 'Test Observer Name',
+                    'description' => 'Test Observer Description',
                 ]);
 
             // 404エラーが返されることを確認
