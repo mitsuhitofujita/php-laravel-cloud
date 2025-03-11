@@ -24,8 +24,8 @@ class SubjectTest extends TestCase
             $subject = Subject::factory()->create();
             $subjectDetail = SubjectDetail::factory()->create([
                 'subject_id' => $subject->id,
-                'name' => 'Test Subject',
-                'description' => 'Test Description',
+                'name' => 'Test Subject Name',
+                'description' => 'Test Subject Description',
             ]);
 
             $observer->organizations()->attach($organization);
@@ -40,6 +40,9 @@ class SubjectTest extends TestCase
                 ]));
 
             $response->assertOk();
+            $response->assertViewIs('subject.show');
+            $response->assertSee('Test Subject Name');
+            $response->assertSee('Test Subject Description');
         });
     }
 
@@ -52,8 +55,8 @@ class SubjectTest extends TestCase
             $subject = Subject::factory()->create();
             $subjectDetail = SubjectDetail::factory()->create([
                 'subject_id' => $subject->id,
-                'name' => 'Test Subject',
-                'description' => 'Test Description',
+                'name' => 'Test Subject Name',
+                'description' => 'Test Subject Description',
             ]);
 
             $observer->organizations()->attach($organization);

@@ -31,7 +31,7 @@
 
                             <div>
                                 <x-input-label for="description" :value="__('Description')" />
-                                <x-text-area id="description" name="description" class="mt-1 block w-full" autocomplete="description">{{ old('description') }}</x-text-area>
+                                <x-text-area id="description" name="description" class="mt-1 block w-full" autocomplete="description" :value="old('description')" />
                                 <x-input-error class="mt-2" :messages="$errors->get('description')" />
                             </div>
 
