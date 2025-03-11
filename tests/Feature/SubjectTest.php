@@ -129,6 +129,44 @@ class SubjectTest extends TestCase
         });
     }
 
+    public function test_subject_edit_page_displays_existing_values(): void
+    {
+        Event::fakeFor(function () {
+            $user = User::factory()->create();
+            $observer = Observer::factory()->create();
+            $organization = Organization::factory()->create();
+            $subject = Subject::factory()->create();
+            $subjectDetail = SubjectDetail::factory()->create([
+                'subject_id' => $subject->id,
+                'name' => 'Test Subject Name',
+                'description' => 'Test Subject Description',
+            ]);
+
+            $observer->organizations()->attach($organization);
+            $organization->subjects()->attach($subject);
+            $user->observers()->attach($observer);
+
+            $response = $this
+                ->actingAs($user)
+                ->get(route('organization.subject.edit', [
+                    'organization' => $organization->id,
+                    'subject' => $subject->id,
+                ]));
+
+            $response->assertOk();
+            $response->assertViewIs('subject.edit');
+            $response->assertSee('Test Subject Name');
+            $response->assertSee('Test Subject Description');
+            
+            // Ensure form values are pre-populated in the rendered HTML
+            $response->assertSee('value="Test Subject Name"', false);
+            
+            // テキストエリアに既存の説明文が含まれていることを確認
+            $content = $response->getContent();
+            $this->assertStringContainsString('Test Subject Description', $content);
+        });
+    }
+
     public function test_unauthorized_user_cannot_view_subject(): void
     {
         Event::fakeFor(function () {
