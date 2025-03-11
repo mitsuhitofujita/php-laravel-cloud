@@ -37,7 +37,7 @@
 
                             <div class="flex items-center gap-4">
                                 <x-primary-button>{{ __('Create') }}</x-primary-button>
-                                <a href="{{ route('organization.show') }}">
+                                <a href="{{ route('organization.show', ['organizationId' => $organization->id]) }}">
                                     <x-secondary-button type="button">{{ __('Cancel') }}</x-secondary-button>
                                 </a>
                             </div>

@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Edit Organization') }}
+            {{ __('Create New Organization') }}
         </h2>
     </x-slot>
 
@@ -15,41 +15,30 @@
                                 {{ __('Organization Information') }}
                             </h2>
                             <p class="mt-1 text-sm text-gray-600">
-                                {{ __("Update your organization's information.") }}
+                                {{ __("Create a new organization.") }}
                             </p>
                         </header>
 
-                        <form method="post" action="{{ route('organization.update', ['organizationId' => $organization->id]) }}" class="mt-6 space-y-6">
+                        <form method="post" action="{{ route('organization.store') }}" class="mt-6 space-y-6">
                             @csrf
-                            @method('put')
 
                             <div>
                                 <x-input-label for="name" :value="__('Name')" />
-                                <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name', $detail->name)" required autofocus autocomplete="name" />
+                                <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name')" required autofocus autocomplete="name" />
                                 <x-input-error class="mt-2" :messages="$errors->get('name')" />
                             </div>
 
                             <div>
                                 <x-input-label for="description" :value="__('Description')" />
-                                <x-text-area id="description" name="description" class="mt-1 block w-full" :value="old('description', $detail->description)" autocomplete="description" />
+                                <x-text-area id="description" name="description" class="mt-1 block w-full" autocomplete="description" :value="old('description')" />
                                 <x-input-error class="mt-2" :messages="$errors->get('description')" />
                             </div>
 
                             <div class="flex items-center gap-4">
-                                <x-primary-button>{{ __('Save') }}</x-primary-button>
-                                <a href="{{ route('organization.show', ['organizationId' => $organization->id]) }}">
+                                <x-primary-button>{{ __('Create') }}</x-primary-button>
+                                <a href="{{ route('organization.index') }}">
                                     <x-secondary-button type="button">{{ __('Cancel') }}</x-secondary-button>
                                 </a>
-
-                                @if (session('status') === 'organization-updated')
-                                    <p
-                                        x-data="{ show: true }"
-                                        x-show="show"
-                                        x-transition
-                                        x-init="setTimeout(() => show = false, 2000)"
-                                        class="text-sm text-gray-600"
-                                    >{{ __('Saved.') }}</p>
-                                @endif
                             </div>
                         </form>
                     </section>

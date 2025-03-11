@@ -44,7 +44,7 @@ class OrganizationTest extends TestCase
 
             $response = $this
                 ->actingAs($user)
-                ->get(route('organization.show'));
+                ->get(route('organization.show', ['organizationId' => $organization->id]));
 
             $response->assertOk();
             $response->assertViewIs('organization.show');
@@ -75,7 +75,7 @@ class OrganizationTest extends TestCase
 
             $response = $this
                 ->actingAs($user)
-                ->get(route('organization.edit'));
+                ->get(route('organization.edit', ['organizationId' => $organization->id]));
 
             $response->assertOk();
             $response->assertViewIs('organization.edit');
@@ -105,12 +105,12 @@ class OrganizationTest extends TestCase
 
             $response = $this
                 ->actingAs($user)
-                ->put(route('organization.update'), [
+                ->put(route('organization.update', ['organizationId' => $organization->id]), [
                     'name' => 'Test Organization Updated Name',
                     'description' => 'Test Organization Updated Description',
                 ]);
 
-            $response->assertRedirect(route('organization.show'));
+            $response->assertRedirect(route('organization.show', ['organizationId' => $organization->id]));
             $response->assertSessionHas('status', 'organization-updated');
 
             // 新しいOrganizationDetailが作成されたことを確認
@@ -129,7 +129,7 @@ class OrganizationTest extends TestCase
         }, [UserCreated::class, ObserverCreated::class]);
     }
 
-    public function test_organization_show_with_missing_organization_returns_404(): void
+    public function test_organization_show_with_nonexistent_id_returns_404(): void
     {
         Event::fakeFor(function () {
             $user = User::factory()->create();
@@ -140,17 +140,18 @@ class OrganizationTest extends TestCase
 
             $user->observers()->attach($observer);
 
-            // Organizationは作成しない
+            // 存在しないIDを指定
+            $nonexistentId = 999;
 
             $response = $this
                 ->actingAs($user)
-                ->get(route('organization.show'));
+                ->get(route('organization.show', ['organizationId' => $nonexistentId]));
 
             $response->assertNotFound();
         }, [UserCreated::class, ObserverCreated::class]);
     }
 
-    public function test_organization_edit_with_missing_organization_returns_404(): void
+    public function test_organization_edit_with_nonexistent_id_returns_404(): void
     {
         Event::fakeFor(function () {
             $user = User::factory()->create();
@@ -161,17 +162,18 @@ class OrganizationTest extends TestCase
 
             $user->observers()->attach($observer);
 
-            // Organizationは作成しない
+            // 存在しないIDを指定
+            $nonexistentId = 999;
 
             $response = $this
                 ->actingAs($user)
-                ->get(route('organization.edit'));
+                ->get(route('organization.edit', ['organizationId' => $nonexistentId]));
 
             $response->assertNotFound();
         }, [UserCreated::class, ObserverCreated::class]);
     }
 
-    public function test_organization_update_with_missing_organization_returns_404(): void
+    public function test_organization_update_with_nonexistent_id_returns_404(): void
     {
         Event::fakeFor(function () {
             $user = User::factory()->create();
@@ -182,11 +184,12 @@ class OrganizationTest extends TestCase
 
             $user->observers()->attach($observer);
 
-            // Organizationは作成しない
+            // 存在しないIDを指定
+            $nonexistentId = 999;
 
             $response = $this
                 ->actingAs($user)
-                ->put(route('organization.update'), [
+                ->put(route('organization.update', ['organizationId' => $nonexistentId]), [
                     'name' => 'Test Name',
                     'description' => 'Test Description',
                 ]);
@@ -215,7 +218,7 @@ class OrganizationTest extends TestCase
             // 名前が未入力の場合
             $response = $this
                 ->actingAs($user)
-                ->put(route('organization.update'), [
+                ->put(route('organization.update', ['organizationId' => $organization->id]), [
                     'name' => '',
                     'description' => 'Test Description',
                 ]);
@@ -225,7 +228,7 @@ class OrganizationTest extends TestCase
             // 名前が長すぎる場合
             $response = $this
                 ->actingAs($user)
-                ->put(route('organization.update'), [
+                ->put(route('organization.update', ['organizationId' => $organization->id]), [
                     'name' => str_repeat('a', 256),
                     'description' => 'Test Description',
                 ]);
@@ -235,7 +238,7 @@ class OrganizationTest extends TestCase
             // 説明が長すぎる場合
             $response = $this
                 ->actingAs($user)
-                ->put(route('organization.update'), [
+                ->put(route('organization.update', ['organizationId' => $organization->id]), [
                     'name' => 'Test Name',
                     'description' => str_repeat('a', 1001),
                 ]);

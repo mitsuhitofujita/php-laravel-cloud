@@ -25,16 +25,19 @@ Route::middleware('auth')->group(function () {
     Route::put('/observer', [ObserverController::class, 'update'])->name('observer.update');
 
     // Organization関連のルート
-    Route::get('/organization', [OrganizationController::class, 'show'])->name('organization.show');
-    Route::get('/organization/edit', [OrganizationController::class, 'edit'])->name('organization.edit');
-    Route::put('/organization', [OrganizationController::class, 'update'])->name('organization.update');
+    Route::get('/organizations', [OrganizationController::class, 'index'])->name('organization.index');
+    Route::get('/organizations/create', [OrganizationController::class, 'create'])->name('organization.create');
+    Route::post('/organizations', [OrganizationController::class, 'store'])->name('organization.store');
+    Route::get('/organizations/{organizationId}', [OrganizationController::class, 'show'])->name('organization.show');
+    Route::get('/organizations/{organizationId}/edit', [OrganizationController::class, 'edit'])->name('organization.edit');
+    Route::put('/organizations/{organizationId}', [OrganizationController::class, 'update'])->name('organization.update');
     
     // Subject関連のルート
-    Route::get('/organization/{organization}/subjects/create', [SubjectController::class, 'create'])->name('organization.subject.create');
-    Route::post('/organization/{organization}/subjects', [SubjectController::class, 'store'])->name('organization.subject.store');
-    Route::get('/organization/{organization}/subjects/{subject}', [SubjectController::class, 'show'])->name('organization.subject.show');
-    Route::get('/organization/{organization}/subjects/{subject}/edit', [SubjectController::class, 'edit'])->name('organization.subject.edit');
-    Route::put('/organization/{organization}/subjects/{subject}', [SubjectController::class, 'update'])->name('organization.subject.update');
+    Route::get('/organizations/{organization}/subjects/create', [SubjectController::class, 'create'])->name('organization.subject.create');
+    Route::post('/organizations/{organization}/subjects', [SubjectController::class, 'store'])->name('organization.subject.store');
+    Route::get('/organizations/{organization}/subjects/{subject}', [SubjectController::class, 'show'])->name('organization.subject.show');
+    Route::get('/organizations/{organization}/subjects/{subject}/edit', [SubjectController::class, 'edit'])->name('organization.subject.edit');
+    Route::put('/organizations/{organization}/subjects/{subject}', [SubjectController::class, 'update'])->name('organization.subject.update');
 });
 
 require __DIR__.'/auth.php';

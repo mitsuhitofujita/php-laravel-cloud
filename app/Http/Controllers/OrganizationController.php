@@ -11,9 +11,9 @@ use Illuminate\View\View;
 class OrganizationController extends Controller
 {
     /**
-     * 現在のユーザーに関連するOrganizationを表示する
+     * 新しいOrganizationを作成するためのフォームを表示する
      */
-    public function show(Request $request): View
+    public function create(Request $request): View
     {
         $user = $request->user();
         $observer = $user->getDefaultObserver();
@@ -22,11 +22,75 @@ class OrganizationController extends Controller
             abort(404, 'Observer not found');
         }
 
-        $organization = $observer->organizations()->first();
+        return view('organization.create');
+    }
 
-        if (! $organization) {
-            abort(404, 'Organization not found');
+    /**
+     * 新しいOrganizationを保存する
+     */
+    public function store(OrganizationUpdateRequest $request)
+    {
+        $user = $request->user();
+        $observer = $user->getDefaultObserver();
+
+        if (! $observer) {
+            abort(404, 'Observer not found');
         }
+
+        $validated = $request->validated();
+
+        $organization = DB::transaction(function () use ($observer, $validated) {
+            // 新しいOrganizationを作成
+            $organization = \App\Models\Organization::create();
+            
+            // Observerと関連付け
+            $observer->organizations()->attach($organization);
+            
+            // OrganizationDetailを作成
+            $detail = OrganizationDetail::create([
+                'organization_id' => $organization->id,
+                'name' => $validated['name'],
+                'description' => $validated['description'] ?? null,
+            ]);
+            
+            return $organization;
+        });
+
+        return redirect()->route('organization.show', ['organizationId' => $organization->id])
+            ->with('status', 'organization-created');
+    }
+    /**
+     * 現在のユーザーに関連するすべてのOrganizationを表示する
+     */
+    public function index(Request $request): View
+    {
+        $user = $request->user();
+        $observer = $user->getDefaultObserver();
+
+        if (! $observer) {
+            abort(404, 'Observer not found');
+        }
+
+        $organizations = $observer->organizations()->with('latestDetail')->get();
+
+        return view('organization.index', [
+            'organizations' => $organizations,
+        ]);
+    }
+
+    /**
+     * 特定のOrganizationの詳細を表示する
+     */
+    public function show(Request $request, $organizationId): View
+    {
+        $user = $request->user();
+        $observer = $user->getDefaultObserver();
+
+        if (! $observer) {
+            abort(404, 'Observer not found');
+        }
+
+        $organization = $observer->organizations()->findOrFail($organizationId);
 
         return view('organization.show', [
             'organization' => $organization,
@@ -35,9 +99,9 @@ class OrganizationController extends Controller
     }
 
     /**
-     * 現在のユーザーに関連するOrganizationの編集フォームを表示する
+     * 特定のOrganizationの編集フォームを表示する
      */
-    public function edit(Request $request): View
+    public function edit(Request $request, $organizationId): View
     {
         $user = $request->user();
         $observer = $user->getDefaultObserver();
@@ -46,11 +110,7 @@ class OrganizationController extends Controller
             abort(404, 'Observer not found');
         }
 
-        $organization = $observer->organizations()->first();
-
-        if (! $organization) {
-            abort(404, 'Organization not found');
-        }
+        $organization = $observer->organizations()->findOrFail($organizationId);
 
         return view('organization.edit', [
             'organization' => $organization,
@@ -59,10 +119,10 @@ class OrganizationController extends Controller
     }
 
     /**
-     * 現在のユーザーに関連するOrganizationを更新する
+     * 特定のOrganizationを更新する
      * 更新時には新しいOrganizationDetailレコードを作成する
      */
-    public function update(OrganizationUpdateRequest $request)
+    public function update(OrganizationUpdateRequest $request, $organizationId)
     {
         $user = $request->user();
         $observer = $user->getDefaultObserver();
@@ -71,11 +131,7 @@ class OrganizationController extends Controller
             abort(404, 'Observer not found');
         }
 
-        $organization = $observer->organizations()->first();
-
-        if (! $organization) {
-            abort(404, 'Organization not found');
-        }
+        $organization = $observer->organizations()->findOrFail($organizationId);
 
         // バリデーション済みデータを取得
         $validated = $request->validated();
@@ -90,7 +146,7 @@ class OrganizationController extends Controller
             ]);
         });
 
-        return redirect()->route('organization.show')
+        return redirect()->route('organization.show', ['organizationId' => $organization->id])
             ->with('status', 'organization-updated');
     }
 }

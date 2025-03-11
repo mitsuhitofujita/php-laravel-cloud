@@ -35,7 +35,7 @@
                                 <a href="{{ route('organization.subject.edit', ['organization' => $organization->id, 'subject' => $subject->id]) }}">
                                     <x-primary-button>{{ __('Edit') }}</x-primary-button>
                                 </a>
-                                <a href="{{ route('organization.show') }}">
+                                <a href="{{ route('organization.show', ['organizationId' => $organization->id]) }}">
                                     <x-secondary-button>{{ __('Back to Organization') }}</x-secondary-button>
                                 </a>
                                 
