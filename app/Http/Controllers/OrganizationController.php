@@ -90,7 +90,7 @@ class OrganizationController extends Controller
             abort(404, 'Observer not found');
         }
 
-        $organization = $observer->organizations()->findOrFail($organizationId);
+        $organization = $observer->organizations()->with('subjects.latestDetail')->findOrFail($organizationId);
 
         return view('organization.show', [
             'organization' => $organization,

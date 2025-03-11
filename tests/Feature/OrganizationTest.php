@@ -50,6 +50,9 @@ class OrganizationTest extends TestCase
             $response->assertViewIs('organization.show');
             $response->assertSee('Test Organization Name');
             $response->assertSee('Test Organization Description');
+            $response->assertSee('Create New Subject');
+            $response->assertSee('Subjects');
+            $response->assertSee('No subjects found for this organization');
         }, [UserCreated::class, ObserverCreated::class]);
     }
 
@@ -198,6 +201,52 @@ class OrganizationTest extends TestCase
         }, [UserCreated::class, ObserverCreated::class]);
     }
 
+    public function test_organization_show_page_displays_subjects(): void
+    {
+        Event::fakeFor(function () {
+            $user = User::factory()->create();
+            $observer = Observer::factory()->create();
+            $organization = Organization::factory()->create();
+            
+            // Create test subjects
+            $subject1 = \App\Models\Subject::factory()->create();
+            $subject2 = \App\Models\Subject::factory()->create();
+            
+            // Create subject details
+            \App\Models\SubjectDetail::factory()->create([
+                'subject_id' => $subject1->id,
+                'name' => 'Test Subject 1',
+                'description' => 'Description for subject 1',
+            ]);
+            
+            \App\Models\SubjectDetail::factory()->create([
+                'subject_id' => $subject2->id,
+                'name' => 'Test Subject 2',
+                'description' => 'Description for subject 2',
+            ]);
+            
+            // Associate subjects with organization
+            $organization->subjects()->attach([$subject1->id, $subject2->id]);
+            
+            // Associate organization with observer
+            $observer->organizations()->attach($organization);
+            
+            // Associate observer with user
+            $user->observers()->attach($observer);
+            
+            $response = $this
+                ->actingAs($user)
+                ->get(route('organization.show', ['organizationId' => $organization->id]));
+            
+            $response->assertOk();
+            $response->assertSee('Test Subject 1');
+            $response->assertSee('Description for subject 1');
+            $response->assertSee('Test Subject 2');
+            $response->assertSee('Description for subject 2');
+            $response->assertDontSee('No subjects found for this organization');
+        });
+    }
+    
     public function test_organization_update_validation_errors(): void
     {
         Event::fakeFor(function () {
