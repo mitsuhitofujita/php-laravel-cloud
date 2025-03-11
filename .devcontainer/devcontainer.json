@@ -34,6 +34,7 @@
                 "terminal.integrated.defaultProfile.linux": "bash"
             },
 			"extensions": [
+                "laravel.vscode-laravel",
 				"bmewburn.vscode-intelephense-client",
 				"cweijan.vscode-database-client2",
 				"editorconfig.editorconfig",
