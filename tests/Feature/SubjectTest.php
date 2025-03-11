@@ -155,15 +155,8 @@ class SubjectTest extends TestCase
 
             $response->assertOk();
             $response->assertViewIs('subject.edit');
-            $response->assertSee('Test Subject Name');
-            $response->assertSee('Test Subject Description');
-            
-            // Ensure form values are pre-populated in the rendered HTML
             $response->assertSee('value="Test Subject Name"', false);
-            
-            // テキストエリアに既存の説明文が含まれていることを確認
-            $content = $response->getContent();
-            $this->assertStringContainsString('Test Subject Description', $content);
+            $response->assertSee('>Test Subject Description</textarea>', false);
         });
     }
 
